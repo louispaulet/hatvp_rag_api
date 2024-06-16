@@ -3,6 +3,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# do not version notepad++ files
+*.bak
+
+#do not version heavy files  
+datasets/
+
 # C extensions
 *.so
 
