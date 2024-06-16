@@ -1,2 +1,3 @@
 # hatvp_rag_api
-HATVP RAG API
+
+An API to respond to HATVP RAG queries.  
