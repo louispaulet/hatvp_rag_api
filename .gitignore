@@ -6,6 +6,9 @@ __pycache__/
 # do not version notepad++ files
 *.bak
 
+# do not version secrets
+.env
+
 #do not version heavy files  
 datasets/
 
