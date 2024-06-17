@@ -8,8 +8,9 @@ from langchain.schema.output_parser import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_groq import ChatGroq
 import tiktoken
-
+from flask_cors import CORS
 app = Flask(__name__)
+CORS(app)
 
 # Load environment variables
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
