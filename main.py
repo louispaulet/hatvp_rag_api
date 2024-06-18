@@ -42,7 +42,7 @@ def get_embedding(text, model="text-embedding-3-large"):
 def perform_query(query, n_samples=1):
     query_embed = np.array(get_embedding(query.lower()))
     scores, retrieved_examples = embed_ds.get_nearest_examples('text_index_embedding', query_embed, k=n_samples)
-    return retrieved_examples['declaration_json']
+    return [text.title() for text in retrieved_examples['text_index']], retrieved_examples['declaration_json']
 
 def get_name_surname_from_str_declaration(input_str_json):
     parsed_json = json.loads(input_str_json)
@@ -57,8 +57,8 @@ def get_answer_to_question(question, llm_to_use):
     human = "{text}"
     prompt = ChatPromptTemplate.from_messages([("system", system), ("human", human)])
     
-    results = perform_query(question, 1)
-    context = ''.join(results)  # Concatenate top results into a context
+    declaration_id, declaration_content = perform_query(question, 1)
+    context = ''.join(declaration_content)  # Concatenate top results into a context
     actual_prompt = f"""
     Question: {question}
     Context: {context}
@@ -66,15 +66,15 @@ def get_answer_to_question(question, llm_to_use):
     """
     
     chain = prompt | llm_to_use | StrOutputParser()
-    return chain.invoke({"text": actual_prompt})
+    return declaration_id, chain.invoke({"text": actual_prompt})
 
 @app.route('/ask', methods=['POST'])
 def ask_question():
     data = request.json
     question = data.get('question')
     llm_llama3_70B = ChatGroq(temperature=0, model_name="llama3-70b-8192")
-    answer = get_answer_to_question(question, llm_llama3_70B)
-    return jsonify({'answer': answer})
+    declaration_id, answer = get_answer_to_question(question, llm_llama3_70B)
+    return jsonify({'answer': answer, 'declaration_id': declaration_id})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
